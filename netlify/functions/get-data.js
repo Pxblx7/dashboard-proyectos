@@ -1,7 +1,7 @@
 // Esta es la nueva versión de tu función, ahora usando SheetDB.
 
 // ▼▼▼ PEGA TU URL DE LA API DE SHEETDB AQUÍ ▼▼▼
-const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/oigbg9o19pmwk';
+const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/oigbg9o19pmwk?sheet=Objetivos_Q4';
 // ▲▲▲ PEGA TU URL DE LA API DE SHEETDB AQUÍ ▲▲▲
 
 
@@ -67,5 +67,6 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
 
 
