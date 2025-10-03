@@ -1,0 +1,13 @@
+# Este archivo le dice a Netlify dónde encontrar tus funciones
+# y cómo construir tu sitio.
+
+[build]
+  # No hay un comando de construcción, ya que es un sitio HTML simple.
+  command = ""
+  # El directorio que contiene los archivos de tu sitio.
+  publish = "/"
+
+[functions]
+  # El directorio donde Netlify buscará tus funciones.
+  directory = "netlify/functions/"
+

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Proyectos Ze-commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark Theme (Default) */
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --card: 222.2 84% 4.9%;
+            --card-foreground: 210 40% 98%;
+            --muted: 222.2 84% 8%; /* Slightly lighter than background for containers */
+            --muted-foreground: 215 20.2% 65.1%;
+            --border: 217.2 32.6% 25%; /* Lighter border for more contrast */
+        }
+
+        .light {
+            /* Light Theme */
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --border: 214.3 31.8% 91.4%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+        }
+        .card {
+            background-color: hsl(var(--card));
+            color: hsl(var(--card-foreground));
+            border: 1px solid hsl(var(--border));
+        }
+        .tab-btn {
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-btn.active {
+            color: hsl(var(--foreground));
+            border-bottom-color: hsl(var(--foreground));
+        }
+        .muted-text {
+            color: hsl(var(--muted-foreground));
+        }
+        #project-modal {
+            transition: opacity 0.3s ease;
+        }
+        #project-modal > div:not(#modal-backdrop) {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .tooltip-container .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+        .tooltip-container:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        #main-sticky-header {
+            top: -1rem; 
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid;
+            border-color: #888 transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @media (min-width: 640px) {
+            #main-sticky-header { top: -1.5rem; }
+        }
+        @media (min-width: 768px) {
+            #main-sticky-header { top: -2rem; }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Main Sticky Header -->
+        <div id="main-sticky-header" class="sticky z-30 bg-[hsl(var(--background))] pt-4 sm:pt-6 md:pt-8 pb-4">
+            <header class="mb-8 flex justify-between items-start">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight">Dashboard de Proyectos Ze-commerce</h1>
+                    <p class="text-lg muted-text">Seguimiento de KPIs y entregables.</p>
+                </div>
+                <!-- Theme Toggler Button -->
+                <button id="theme-toggle" type="button" class="p-2 rounded-lg border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]">
+                    <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                </button>
+            </header>
+            <div class="border-b border-[hsl(var(--border))]">
+                <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                    <button id="tab-roadmap" class="tab-btn active text-base font-semibold py-3 px-1">
+                        Roadmap
+                    </button>
+                    <button id="tab-cards" class="tab-btn text-base font-semibold py-3 px-1 muted-text">
+                        Detalle de Proyectos
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <main class="mt-8">
+            <!-- Vista de Roadmap -->
+            <div id="content-roadmap">
+                <div class="bg-[hsl(var(--muted))] rounded-xl border border-[hsl(var(--border))] overflow-x-auto">
+                    <div id="roadmap-container" class="relative min-w-[1200px] flex items-center justify-center min-h-[400px]">
+                        <!-- Loader and content will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de Tarjetas -->
+            <div id="content-cards" class="hidden">
+                 <div class="mb-8">
+                    <a href="https://docs.google.com/spreadsheets/d/1lDevcsKJ8EiPH-rxBE0MnrtxTAUIVjF7ZLdXffKji_0/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-sky-600 text-white hover:bg-sky-700 h-10 py-2 px-4 w-full sm:w-auto shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        Ver base de datos en Google Sheets
+                    </a>
+                </div>
+
+                <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Loader and content will be generated here -->
+                </div>
+                <div class="mt-12 pt-6 border-t border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] text-sm">
+                    <h4 class="font-bold text-[hsl(var(--foreground))] mb-3 text-base">Notas sobre Priorización:</h4>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Los proyectos de Pagespeed se despriorizan para darle más peso al proyecto de Mejoras SEO.</li>
+                        <li>Los sub kpis de '% de errores en web' y 'suma promedio de flujos en checkout', se despriorizan ya que serán considerados a futuro con el proyecto OZ (off-zecore).</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- START: Modal Structure -->
+    <div id="project-modal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black bg-opacity-70" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div id="modal-backdrop" class="fixed inset-0"></div>
+        <div class="relative bg-[hsl(var(--card))] rounded-lg text-left overflow-hidden shadow-xl transform max-w-lg w-full border border-[hsl(var(--border))] scale-95 opacity-0">
+            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg leading-6 font-bold" id="modal-title">Detalle del Proyecto</h3>
+                <div class="mt-4">
+                    <p class="text-base font-semibold" id="modal-formula"></p>
+                    <p class="text-sm muted-text mt-2" id="modal-cronograma"></p>
+                </div>
+            </div>
+            <div class="bg-[hsl(var(--muted))] px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" id="close-modal-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-[hsl(var(--border))] shadow-sm px-4 py-2 bg-[hsl(var(--background))] text-base font-medium hover:bg-[hsl(var(--muted))] focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END: Modal Structure -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Global variable to hold the fetched data
+            let kpiData = null;
+
+            // --- Lógica de la Aplicación ---
+            
+            // --- CAMBIO IMPORTANTE: Ahora llamamos a nuestra Netlify Function ---
+            // Esta es una ruta relativa a nuestro propio sitio.
+            const API_ENDPOINT = '/.netlify/functions/get-data';
+
+            const roadmapContainer = document.getElementById('roadmap-container');
+            const cardsContainer = document.getElementById('cards-container');
+
+            const showLoader = () => {
+                const loaderHTML = `
+                    <div class="flex flex-col items-center justify-center p-8">
+                        <span class="loader"></span>
+                        <p class="mt-4 muted-text">Cargando datos desde Google Sheets...</p>
+                    </div>`;
+                roadmapContainer.innerHTML = loaderHTML;
+                cardsContainer.innerHTML = loaderHTML;
+            };
+
+            const showError = (message) => {
+                const errorHTML = `<div class="text-center p-8 text-red-500"><b>Error al cargar los datos:</b><br>${message}</div>`;
+                roadmapContainer.innerHTML = errorHTML;
+                cardsContainer.innerHTML = errorHTML;
+            };
+            
+            const applyTheme = () => {
+                const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+                const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+                const isLight = document.documentElement.classList.contains('light');
+                
+                if (isLight) {
+                    themeToggleLightIcon.classList.remove('hidden');
+                    themeToggleDarkIcon.classList.add('hidden');
+                } else {
+                    themeToggleLightIcon.classList.add('hidden');
+                    themeToggleDarkIcon.classList.remove('hidden');
+                }
+                renderAll(); // Re-render content when theme changes
+            };
+
+            const switchTab = (activeTab) => {
+                const tabRoadmap = document.getElementById('tab-roadmap');
+                const tabCards = document.getElementById('tab-cards');
+                const contentRoadmap = document.getElementById('content-roadmap');
+                const contentCards = document.getElementById('content-cards');
+
+                if (activeTab === 'roadmap') {
+                    tabRoadmap.classList.add('active'); tabRoadmap.classList.remove('muted-text');
+                    tabCards.classList.remove('active'); tabCards.classList.add('muted-text');
+                    contentRoadmap.classList.remove('hidden'); contentCards.classList.add('hidden');
+                } else {
+                    tabCards.classList.add('active'); tabCards.classList.remove('muted-text');
+                    tabRoadmap.classList.remove('active'); tabRoadmap.classList.add('muted-text');
+                    contentCards.classList.remove('hidden'); contentRoadmap.classList.add('hidden');
+                }
+            };
+            
+            const renderAll = () => {
+                if (!kpiData) return;
+                renderCards();
+                renderRoadmap();
+            };
+
+            const renderCards = () => {
+                const isLight = document.documentElement.classList.contains('light');
+                cardsContainer.innerHTML = '';
+                
+                const colorThemesDark = [
+                    { bar: 'bg-sky-500', chip: 'bg-sky-900/50 border-sky-700 text-sky-300' }, { bar: 'bg-emerald-500', chip: 'bg-emerald-900/50 border-emerald-700 text-emerald-300' }, { bar: 'bg-amber-500', chip: 'bg-amber-900/50 border-amber-700 text-amber-300' }, { bar: 'bg-indigo-500', chip: 'bg-indigo-900/50 border-indigo-700 text-indigo-300' }, { bar: 'bg-rose-500', chip: 'bg-rose-900/50 border-rose-700 text-rose-300' }, { bar: 'bg-cyan-500', chip: 'bg-cyan-900/50 border-cyan-700 text-cyan-300' }, { bar: 'bg-violet-500', chip: 'bg-violet-900/50 border-violet-700 text-violet-300' }
+                ];
+                const colorThemesLight = [
+                    { bar: 'bg-sky-500', chip: 'bg-sky-100 border-sky-200 text-sky-800' }, { bar: 'bg-emerald-500', chip: 'bg-emerald-100 border-emerald-200 text-emerald-800' }, { bar: 'bg-amber-500', chip: 'bg-amber-100 border-amber-200 text-amber-800' }, { bar: 'bg-indigo-500', chip: 'bg-indigo-100 border-indigo-200 text-indigo-800' }, { bar: 'bg-rose-500', chip: 'bg-rose-100 border-rose-200 text-rose-800' }, { bar: 'bg-cyan-500', chip: 'bg-cyan-100 border-cyan-200 text-cyan-800' }, { bar: 'bg-violet-500', chip: 'bg-violet-100 border-violet-200 text-violet-800' }
+                ];
+                const kpiColorMap = {};
+                const uniqueKpis = [...new Set(kpiData.kpis.map(k => k.kpi_global))];
+                uniqueKpis.forEach((kpi_global, index) => {
+                    kpiColorMap[kpi_global] = { dark: colorThemesDark[index % colorThemesDark.length], light: colorThemesLight[index % colorThemesLight.length] };
+                });
+
+
+                kpiData.kpis.forEach(kpi => {
+                    const theme = kpiColorMap[kpi.kpi_global] ? kpiColorMap[kpi.kpi_global][isLight ? 'light' : 'dark'] : { chip: 'bg-slate-100 border-slate-200 text-slate-800' };
+                    const nivelesLogroHTML = Object.entries(kpi.niveles_logro)
+                        .map(([key, value]) => (value !== null && value !== '') ? `<div class="flex justify-between text-sm"><span class="muted-text">Nivel ${key}</span><span class="font-medium">${value}</span></div>` : '')
+                        .join('');
+                    const tooltipText = kpi.metrica.tipo === 'Binario' ? 'Nivel 1 (No Cumplido) y Nivel 3 (Cumplido).' : 'Calificación: Nivel 1 (Peor Resultado) a Nivel 5 (Mejor Resultado).';
+                    const cardHTML = `
+                        <div class="card rounded-xl flex flex-col">
+                            <div class="p-6">
+                                <span class="border text-sm font-semibold px-2 py-1 rounded-full ${theme.chip}">${kpi.kpi_global}</span>
+                                <h3 class="font-bold text-xl mt-3 mb-4">${kpi.sub_kpi}</h3>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex justify-between"><span class="muted-text">Stakeholder</span><span class="font-medium">${kpi.responsables.stakeholder || 'N/A'}</span></div>
+                                    <div class="flex justify-between"><span class="muted-text">Área</span><span class="font-medium">${kpi.responsables.area || 'N/A'}</span></div>
+                                </div>
+                            </div>
+                            <div class="border-t border-[hsl(var(--border))] p-6 flex-grow">
+                                <h4 class="font-semibold mb-3">Métrica</h4>
+                                <div class="space-y-3 mb-6">
+                                    <div class="flex justify-between text-sm"><span class="muted-text">Baseline</span><span class="font-medium">${kpi.metrica.baseline || 'N/A'}</span></div>
+                                    <div class="flex justify-between text-sm"><span class="muted-text">Target</span><span class="font-medium">${kpi.metrica.target || 'N/A'}</span></div>
+                                    <div class="flex justify-between text-sm"><span class="muted-text">Tipo</span><span class="font-medium">${kpi.metrica.tipo || 'N/A'}</span></div>
+                                </div>
+                                <div class="flex items-center mb-3">
+                                    <h4 class="font-semibold">Niveles de Logro</h4>
+                                    <div class="relative flex items-center tooltip-container ml-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <div class="tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs bg-slate-700 text-white text-xs rounded-md py-1.5 px-3 z-10 shadow-lg">${tooltipText}</div>
+                                    </div>
+                                </div><div class="space-y-2">${nivelesLogroHTML}</div>
+                            </div>
+                        </div>`;
+                    cardsContainer.innerHTML += cardHTML;
+                });
+            };
+            
+            const parseDate = (dateStr) => {
+                // Handles "dd/MM/yy" format
+                if (!dateStr || typeof dateStr !== 'string') return null;
+                const parts = dateStr.split('/');
+                if (parts.length !== 3) return null;
+                const [day, month, year] = parts;
+                // new Date(year, monthIndex, day) - month is 0-indexed
+                return new Date(`20${year}`, month - 1, day);
+            };
+
+            const daysBetween = (date1, date2) => (date2 - date1) / (1000 * 60 * 60 * 24);
+
+            const renderRoadmap = () => {
+                const isLight = document.documentElement.classList.contains('light');
+                const projects = kpiData.kpis.filter(p => p.cronograma && p.cronograma.inicio && p.cronograma.entrega_estimada);
+                if (projects.length === 0) {
+                    roadmapContainer.innerHTML = '<div class="text-center p-8 muted-text">No hay proyectos con fechas válidas para mostrar en el roadmap.</div>';
+                    return;
+                }
+                const dates = projects.flatMap(p => [parseDate(p.cronograma.inicio), parseDate(p.cronograma.entrega_estimada)]);
+                const minDate = new Date(Math.min(...dates));
+                const maxDate = new Date(Math.max(...dates));
+                minDate.setDate(1);
+                maxDate.setMonth(maxDate.getMonth() + 1, 0);
+                const totalDays = daysBetween(minDate, maxDate) + 1;
+                const months = [];
+                let currentMonth = new Date(minDate);
+                const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+                while (currentMonth <= maxDate) {
+                    let nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+                    const monthStartDate = (currentMonth < minDate) ? minDate : currentMonth;
+                    const monthEndDate = (nextMonth > maxDate) ? maxDate : new Date(nextMonth.getTime() - 1);
+                    const daysInMonth = daysBetween(monthStartDate, monthEndDate) + 1;
+                    months.push({ name: `${monthNames[currentMonth.getMonth()]} '${String(currentMonth.getFullYear()).slice(2)}`, width: (daysInMonth / totalDays) * 100 });
+                    currentMonth = nextMonth;
+                }
+                const monthHeadersHTML = months.map(month => `<div style="width: ${month.width}%" class="flex-shrink-0 text-center font-semibold text-xs py-2 border-l border-[hsl(var(--border))] muted-text">${month.name}</div>`).join('');
+                const headerHTML = `<div class="sticky top-0 z-20 bg-[hsl(var(--muted))] grid grid-cols-[350px_1fr]"><div class="font-bold text-sm px-4 py-2 border-r border-b border-[hsl(var(--border))]">Proyecto</div><div class="flex border-b border-[hsl(var(--border))]">${monthHeadersHTML}</div></div>`;
+                let verticalLinesHTML = '';
+                let accumulatedWidth = 0;
+                months.slice(0, -1).forEach(month => {
+                    accumulatedWidth += month.width;
+                    verticalLinesHTML += `<div class="absolute top-0 bottom-0 border-l border-[hsl(var(--border))]" style="left: ${accumulatedWidth}%;"></div>`;
+                });
+
+                const colorThemesDark = [
+                    { bar: 'bg-sky-500', chip: 'bg-sky-900/50 border-sky-700 text-sky-300' }, { bar: 'bg-emerald-500', chip: 'bg-emerald-900/50 border-emerald-700 text-emerald-300' }, { bar: 'bg-amber-500', chip: 'bg-amber-900/50 border-amber-700 text-amber-300' }, { bar: 'bg-indigo-500', chip: 'bg-indigo-900/50 border-indigo-700 text-indigo-300' }, { bar: 'bg-rose-500', chip: 'bg-rose-900/50 border-rose-700 text-rose-300' }, { bar: 'bg-cyan-500', chip: 'bg-cyan-900/50 border-cyan-700 text-cyan-300' }, { bar: 'bg-violet-500', chip: 'bg-violet-900/50 border-violet-700 text-violet-300' }
+                ];
+                const colorThemesLight = [
+                    { bar: 'bg-sky-500', chip: 'bg-sky-100 border-sky-200 text-sky-800' }, { bar: 'bg-emerald-500', chip: 'bg-emerald-100 border-emerald-200 text-emerald-800' }, { bar: 'bg-amber-500', chip: 'bg-amber-100 border-amber-200 text-amber-800' }, { bar: 'bg-indigo-500', chip: 'bg-indigo-100 border-indigo-200 text-indigo-800' }, { bar: 'bg-rose-500', chip: 'bg-rose-100 border-rose-200 text-rose-800' }, { bar: 'bg-cyan-500', chip: 'bg-cyan-100 border-cyan-200 text-cyan-800' }, { bar: 'bg-violet-500', chip: 'bg-violet-100 border-violet-200 text-violet-800' }
+                ];
+                const kpiColorMap = {};
+                const uniqueKpis = [...new Set(kpiData.kpis.map(k => k.kpi_global))];
+                uniqueKpis.forEach((kpi_global, index) => {
+                    kpiColorMap[kpi_global] = { dark: colorThemesDark[index % colorThemesDark.length], light: colorThemesLight[index % colorThemesLight.length] };
+                });
+
+                const projectRowsHTML = projects.map((p, index) => {
+                    const theme = kpiColorMap[p.kpi_global] ? kpiColorMap[p.kpi_global][isLight ? 'light' : 'dark'] : { chip: 'bg-slate-100 border-slate-200 text-slate-800', bar: 'bg-slate-500' };
+                    const startDate = parseDate(p.cronograma.inicio);
+                    const endDate = parseDate(p.cronograma.entrega_estimada);
+                    const offsetDays = daysBetween(minDate, startDate);
+                    const durationDays = daysBetween(startDate, endDate) + 1;
+                    const left = (offsetDays / totalDays) * 100;
+                    const width = (durationDays / totalDays) * 100;
+                    return `<div class="grid grid-cols-[350px_1fr] border-b border-[hsl(var(--border))]"><div class="flex flex-col items-start px-4 py-3 justify-center border-r border-[hsl(var(--border))]"><span class="border text-xs font-semibold px-2 py-0.5 rounded-full ${theme.chip}">${p.kpi_global}</span><span class="text-sm font-medium mt-2 leading-tight">${p.sub_kpi}</span></div><div class="relative h-20">${verticalLinesHTML}<div data-project-index="${kpiData.kpis.indexOf(p)}" class="info-icon-group absolute top-1/2 -translate-y-1/2 h-8 rounded-md flex items-center justify-center px-2 overflow-hidden cursor-pointer ${theme.bar}" style="left: ${left}%; width: ${width}%;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div></div></div>`;
+                }).join('');
+                roadmapContainer.innerHTML = headerHTML + projectRowsHTML;
+            };
+
+            const setupModal = () => {
+                const modal = document.getElementById('project-modal');
+                const modalPanel = modal.querySelector('div:not(#modal-backdrop)');
+                const backdrop = document.getElementById('modal-backdrop');
+                const closeModalBtn = document.getElementById('close-modal-btn');
+                const modalTitle = document.getElementById('modal-title');
+                const modalFormula = document.getElementById('modal-formula');
+                const modalCronograma = document.getElementById('modal-cronograma');
+                const openModal = (project) => {
+                    modalTitle.textContent = project.sub_kpi;
+                    modalFormula.textContent = project.formula_explicacion || 'No hay descripción.';
+                    modalCronograma.textContent = `Fechas: ${project.cronograma.inicio || 'N/A'} - ${project.cronograma.entrega_estimada || 'N/A'}`;
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modalPanel.classList.remove('scale-95', 'opacity-0');
+                        modalPanel.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                };
+                const closeModal = () => {
+                    modalPanel.classList.add('scale-95', 'opacity-0');
+                    modalPanel.classList.remove('scale-100', 'opacity-100');
+                    setTimeout(() => modal.classList.add('hidden'), 300);
+                };
+                roadmapContainer.addEventListener('click', (event) => {
+                    const infoIcon = event.target.closest('.info-icon-group');
+                    if (infoIcon && kpiData) {
+                        openModal(kpiData.kpis[infoIcon.dataset.projectIndex]);
+                    }
+                });
+                closeModalBtn.addEventListener('click', closeModal);
+                backdrop.addEventListener('click', closeModal);
+                document.addEventListener('keydown', (e) => (e.key === 'Escape' && !modal.classList.contains('hidden')) && closeModal());
+            };
+
+            // Main function to fetch data and then initialize the interactive parts
+            async function loadAndInitialize() {
+                showLoader();
+                try {
+                    const response = await fetch(API_ENDPOINT);
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        throw new Error(`Respuesta de red no fue exitosa. Status: ${response.status}. Body: ${errorBody}`);
+                    }
+                    const data = await response.json();
+                    if (data.status === 'error' || data.error) {
+                         throw new Error(data.message || data.error);
+                    }
+                    kpiData = data;
+                    
+                    roadmapContainer.innerHTML = '';
+                    cardsContainer.innerHTML = '';
+                    roadmapContainer.classList.remove('flex', 'items-center', 'justify-center', 'min-h-[400px]');
+                    
+                    // Initialize theme and interactive elements only after data is loaded
+                    // Setup theme based on preference
+                    if (localStorage.getItem('color-theme') === 'light' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+                        document.documentElement.classList.add('light');
+                    } else {
+                        document.documentElement.classList.remove('light');
+                    }
+                    
+                    applyTheme(); // This will do the first render
+                    setupModal();
+
+                    // Setup event listeners
+                    const themeToggleBtn = document.getElementById('theme-toggle');
+                    const tabRoadmap = document.getElementById('tab-roadmap');
+                    const tabCards = document.getElementById('tab-cards');
+                    
+                    themeToggleBtn.addEventListener('click', function() {
+                        const isLight = document.documentElement.classList.toggle('light');
+                        localStorage.setItem('color-theme', isLight ? 'light' : 'dark');
+                        applyTheme();
+                    });
+
+                    tabRoadmap.addEventListener('click', () => switchTab('roadmap'));
+                    tabCards.addEventListener('click', () => switchTab('cards'));
+
+                } catch (error) {
+                    console.error('Error durante la carga:', error);
+                    showError(error.message);
+                }
+            }
+
+            // Start the entire process
+            loadAndInitialize();
+        });
+    </script>
+</body>
+</html>
+
