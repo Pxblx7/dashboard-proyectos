@@ -10,7 +10,7 @@ const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/oigbg9o19pmwk';
 
 exports.handler = async (event, context) => {
   // Verificamos que la URL haya sido reemplazada.
-  if (SHEETDB_API_URL.includes('https://sheetdb.io/api/v1/oigbg9o19pmwk')) {
+  if (SHEETDB_API_URL.includes('URL_DE_TU_API_DE_SHEETDB_AQUI')) {
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'La URL de SheetDB no ha sido configurada en la función de Netlify.' }),
@@ -67,4 +67,5 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
 
